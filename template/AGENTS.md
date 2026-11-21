@@ -28,7 +28,7 @@ Run `pnpm check` before you finish. It runs every baseline check in order, keeps
 4. `lint`: Oxlint with Foldkit's plugin over every TypeScript file.
 5. `effect`: Effect diagnostics, through Oxlint.
 6. `unit`: `vitest run` with V8 coverage in `coverage/`. Coverage is reported, never gated.
-7. `worker`: the Worker tests on local workerd with `ALCHEMY_DEV=1`. They need no Cloudflare account.
+7. `worker`: the Worker tests on local workerd with `ALCHEMY_DEV=1`. They need no Cloudflare account, and can't reach one: the gate hides cloud credentials from the environment and from `~/.alchemy`, so a resource that needs the real cloud, such as one marked `Alchemy.remote()`, fails it.
 
 Warnings fail. The studio owns `scripts/check.sh` and the check configs; don't edit them to make a check pass.
 

@@ -3,11 +3,12 @@
 # Proves that `pnpm check` in template/ catches what each gate is for.
 #
 # Copies template/ to a scratch directory, runs `pnpm check` on the clean copy
-# (which must pass), then makes one deliberate faulty change per gate and
-# checks that `pnpm check` exits non-zero with that gate, and only that gate,
-# marked FAIL in its summary.
+# (which must pass), then makes deliberate faulty changes, at least one per
+# gate, and checks that `pnpm check` exits non-zero with that gate, and only
+# that gate, marked FAIL in its summary. A fault named `<gate>_<what>` is a
+# further fault for that gate.
 #
-# Usage: scripts/template-faults.sh [gate ...]   (default: every gate)
+# Usage: scripts/template-faults.sh [fault ...]   (default: every fault)
 
 set -euo pipefail
 
@@ -15,7 +16,7 @@ studio_root="$(cd "$(dirname "$0")/.." && pwd)"
 work="$(mktemp -d "${TMPDIR:-/tmp}/template-faults.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
 
-checks=(install format types lint effect unit worker)
+faults=(install format types lint effect unit worker worker_remote)
 
 rsync -a --exclude node_modules --exclude .alchemy --exclude coverage \
   "$studio_root/template/" "$work/"
@@ -59,20 +60,31 @@ fault_worker() {
   # The Worker's visit counter adds two.
   sed -i.bak "s/Number(stored ?? '0') + 1/Number(stored ?? '0') + 2/" src/worker.ts
 }
+fault_worker_remote() {
+  # The KV namespace uses the real cloud even in dev, which needs credentials
+  # the Worker gate must not have, even with a login saved in ~/.alchemy.
+  sed -i.bak "s/Cloudflare.KV.Namespace('Visits')$/&.pipe(Alchemy.remote())/" \
+    alchemy.run.ts
+}
+# Text the log must contain, for faults whose gate could fail for other reasons.
+expected_text_worker_remote='CredentialsRequired'
 
 reset() {
   git checkout -q -- .
   git clean -qfd
 }
 
-# Runs `pnpm check`, then checks its exit code and that the FAIL lines in its
-# summary are exactly the expected gate (or none).
+# Runs `pnpm check`, then checks its exit code, that the FAIL lines in its
+# summary are exactly the expected gate (or none), and that its output holds
+# the expected text, if any.
 expect_check() {
-  local label="$1" expected="$2" log="$work/.check-$1.log" status=0
+  local label="$1" expected="$2" text="${3:-}" log="$work/.check-$1.log" status=0
   pnpm check >"$log" 2>&1 || status=$?
   local failed
   failed="$(sed -n 's/^FAIL  //p' "$log" | tr '\n' ' ' | sed 's/ $//')"
-  if [[ -z "$expected" && $status -eq 0 && -z "$failed" ]] ||
+  if [[ -n "$text" ]] && ! grep -q "$text" "$log"; then
+    echo "WRONG $label: the output doesn't contain '$text'"
+  elif [[ -z "$expected" && $status -eq 0 && -z "$failed" ]] ||
     [[ -n "$expected" && $status -ne 0 && "$failed" == "$expected" ]]; then
     echo "ok    $label"
     return 0
@@ -83,19 +95,20 @@ expect_check() {
 }
 
 selected=("$@")
-[[ ${#selected[@]} -eq 0 ]] && selected=("${checks[@]}")
+[[ ${#selected[@]} -eq 0 ]] && selected=("${faults[@]}")
 
 result=0
 expect_check clean "" || result=1
-for gate in "${selected[@]}"; do
+for fault in "${selected[@]}"; do
   reset
-  "fault_$gate"
+  "fault_$fault"
   if git diff --quiet; then
-    echo "WRONG $gate: the fault changed nothing"
+    echo "WRONG $fault: the fault changed nothing"
     result=1
     continue
   fi
-  expect_check "$gate" "$gate" || result=1
+  text_var="expected_text_$fault"
+  expect_check "$fault" "${fault%%_*}" "${!text_var:-}" || result=1
 done
 reset
 
