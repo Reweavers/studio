@@ -4,7 +4,8 @@ Issues for this repo live in GitHub Issues on `Reweavers/studio`. Use `gh` from 
 
 ## Conventions
 
-- One ticket per issue. The title is the ticket's name; the body holds what to build and its acceptance criteria as a task list.
+- One ticket per issue. The title is the ticket's name; the body holds what to build, its **seams**, and its acceptance criteria as a task list.
+- **Seams** is a list of the public interfaces the ticket's tests go through, each with a one-line note on what it catches. They are the pre-agreed seams `/implement` and `/tdd` test at, so an agent working the ticket alone needs no one to confirm them.
 - Triage state is a label, exactly one of the roles in `triage-labels.md`.
 - Conversation and recorded results go in issue comments, each a dated line of findings.
 - Refer to another ticket as `#N`.
