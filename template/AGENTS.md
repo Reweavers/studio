@@ -20,7 +20,7 @@ Domain vocabulary, deployment steps, local conventions that differ from Foldkit'
 
 ### Checks
 
-Run `pnpm check` before you finish. It runs every baseline gate in order, keeps going past a failure, and ends with one `PASS` or `FAIL` line per gate:
+Run `pnpm check` before you finish. It runs every baseline check in order, keeps going past a failure, and ends with one `PASS` or `FAIL` line per gate:
 
 1. `install`: a frozen install of the exact-pinned set.
 2. `format`: `oxfmt --check`. Run `pnpm format` to fix.

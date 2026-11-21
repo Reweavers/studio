@@ -15,7 +15,7 @@ export const Website = Cloudflare.Website.Foldkit('Website', {
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>
 
-// Local dev and the Worker test keep state on disk, so they need no
+// NOTE: Local dev and the Worker test keep state on disk, so they need no
 // Cloudflare account. Every other stage keeps it in the account's store.
 const state = Layer.unwrap(
   Effect.gen(function* () {
