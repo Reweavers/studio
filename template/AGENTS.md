@@ -22,7 +22,7 @@ Domain vocabulary, deployment steps, local conventions that differ from Foldkit'
 
 Run `pnpm check` before you finish; `scripts/check.sh` lists the gates it runs. Warnings fail. The Worker gate runs with no Cloudflare credentials, from the environment or `~/.alchemy`, so a resource that needs the real cloud (one marked `Alchemy.remote()`) fails it.
 
-The studio owns `scripts/check.sh` and the check configs, and updates them from upstream: make a failing check pass by changing the code.
+The studio owns `scripts/check.sh` and the check configs, and changes them through upgrade and adoption PRs: make a failing check pass by changing the code.
 
 ### Alchemy
 
