@@ -1,0 +1,37 @@
+[
+  {
+    "name": "ready-for-agent",
+    "color": "0e8a16",
+    "description": "Fully specified: the implementer may build it"
+  },
+  {
+    "name": "agent-working",
+    "color": "5319e7",
+    "description": "Claimed by an implementer or explore run"
+  },
+  {
+    "name": "needs-info",
+    "color": "fbca04",
+    "description": "Waiting on answers to questions"
+  },
+  {
+    "name": "ready-for-human",
+    "color": "1d76db",
+    "description": "Handed to the human"
+  },
+  {
+    "name": "needs-triage",
+    "color": "d4c5f9",
+    "description": "For the explore task to look into"
+  },
+  {
+    "name": "ratchet-skipped",
+    "color": "cfd3d7",
+    "description": "Ratchet PR closed unmerged: not this file for now"
+  },
+  {
+    "name": "upgrade-skipped",
+    "color": "cfd3d7",
+    "description": "Upgrade PR closed unmerged: not this set"
+  }
+]
