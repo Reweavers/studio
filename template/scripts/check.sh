@@ -10,6 +10,11 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.."
 
+# The Worker gate gets an empty Alchemy home, so a saved login in ~/.alchemy
+# can't be used: any resource that needs the real cloud fails the gate.
+alchemy_home="$(mktemp -d)"
+trap 'rm -rf "$alchemy_home"' EXIT
+
 # name | command. Warnings fail every gate that can emit them.
 checks=(
   "install|pnpm install --frozen-lockfile"
@@ -18,7 +23,7 @@ checks=(
   "lint|pnpm exec oxlint --deny-warnings ."
   "effect|pnpm exec effect-tsgo patch --no-typescript --oxlint && pnpm exec oxlint --config .oxlintrc.effect.json --deny-warnings ."
   "unit|pnpm exec vitest run --coverage"
-  "worker|env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_API_KEY -u CLOUDFLARE_EMAIL -u CLOUDFLARE_ACCOUNT_ID ALCHEMY_DEV=1 pnpm exec vitest run --config vitest.worker.config.ts"
+  "worker|env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_API_KEY -u CLOUDFLARE_EMAIL -u CLOUDFLARE_ACCOUNT_ID ALCHEMY_HOME='$alchemy_home' ALCHEMY_DEV=1 pnpm exec vitest run --config vitest.worker.config.ts"
 )
 
 summary=()
