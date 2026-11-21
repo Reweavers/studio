@@ -8,7 +8,7 @@ import * as Test from '@alchemy.run/test/Vitest'
 
 import Stack from '../alchemy.run'
 
-// No `dev` flag here: `ALCHEMY_DEV=1` runs this file on local workerd, and
+// NOTE: No `dev` flag here: `ALCHEMY_DEV=1` runs this file on local workerd, and
 // the same file can later run against a real stage.
 const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   providers: Cloudflare.providers(),

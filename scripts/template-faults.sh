@@ -15,7 +15,7 @@ studio_root="$(cd "$(dirname "$0")/.." && pwd)"
 work="$(mktemp -d "${TMPDIR:-/tmp}/template-faults.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
 
-gates=(install format types lint effect unit worker)
+checks=(install format types lint effect unit worker)
 
 rsync -a --exclude node_modules --exclude .alchemy --exclude coverage \
   "$studio_root/template/" "$work/"
@@ -83,7 +83,7 @@ expect_check() {
 }
 
 selected=("$@")
-[[ ${#selected[@]} -eq 0 ]] && selected=("${gates[@]}")
+[[ ${#selected[@]} -eq 0 ]] && selected=("${checks[@]}")
 
 result=0
 expect_check clean "" || result=1

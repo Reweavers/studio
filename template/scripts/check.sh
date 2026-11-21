@@ -3,15 +3,15 @@
 # The baseline checks. Studio-owned: a project adds its own checks elsewhere
 # and never changes this file.
 #
-# Runs every gate in order, keeps going past a failure, prints one PASS or
-# FAIL line per gate, and exits non-zero if any gate failed.
+# Runs every baseline check in order, keeps going past a failure, prints one
+# PASS or FAIL line per gate, and exits non-zero if any gate failed.
 
 set -uo pipefail
 
 cd "$(dirname "$0")/.."
 
 # name | command. Warnings fail every gate that can emit them.
-gates=(
+checks=(
   "install|pnpm install --frozen-lockfile"
   "format|pnpm exec oxfmt --check"
   "types|pnpm exec tsc --noEmit"
@@ -24,7 +24,7 @@ gates=(
 summary=()
 failed=0
 
-for gate in "${gates[@]}"; do
+for gate in "${checks[@]}"; do
   name="${gate%%|*}"
   command="${gate#*|}"
   echo
