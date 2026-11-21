@@ -20,17 +20,13 @@ Domain vocabulary, deployment steps, local conventions that differ from Foldkit'
 
 ### Checks
 
-Run `pnpm check` before you finish. It runs every baseline check in order, keeps going past a failure, and ends with one `PASS` or `FAIL` line per gate:
+Run `pnpm check` before you finish; `scripts/check.sh` lists the gates it runs. Warnings fail. The Worker gate runs with no Cloudflare credentials, from the environment or `~/.alchemy`, so a resource that needs the real cloud (one marked `Alchemy.remote()`) fails it.
 
-1. `install`: a frozen install of the exact-pinned set.
-2. `format`: `oxfmt --check`. Run `pnpm format` to fix.
-3. `types`: `tsc --noEmit` over `src/`, `test/` and `alchemy.run.ts`.
-4. `lint`: Oxlint with Foldkit's plugin over every TypeScript file.
-5. `effect`: Effect diagnostics, through Oxlint.
-6. `unit`: `vitest run` with V8 coverage in `coverage/`. Coverage is reported, never gated.
-7. `worker`: the Worker tests on local workerd with `ALCHEMY_DEV=1`. They need no Cloudflare account, and can't reach one: the gate hides cloud credentials from the environment and from `~/.alchemy`, so a resource that needs the real cloud, such as one marked `Alchemy.remote()`, fails it.
+The studio owns `scripts/check.sh` and the check configs, and updates them from upstream: make a failing check pass by changing the code.
 
-Warnings fail. The studio owns `scripts/check.sh` and the check configs; don't edit them to make a check pass.
+### Alchemy
+
+Alchemy v2 is a beta. https://alchemy.run/llms.txt indexes its docs; add `.md` to a page's URL to get it as Markdown. Where the docs and the pinned version disagree, `node_modules/alchemy/src` and `node_modules/@alchemy.run/*/src` are the truth.
 
 ### Dependencies
 
