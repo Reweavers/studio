@@ -1,0 +1,11 @@
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: false
+  workerd: true
+engineStrict: true
+# Three days, in minutes.
+minimumReleaseAge: 4320
+savePrefix: ''
+# `pnpm run` must not install first: that would rewrite the lockfile before
+# `pnpm check` gets to its frozen install.
+verifyDepsBeforeRun: false
