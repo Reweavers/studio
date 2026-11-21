@@ -1,0 +1,5 @@
+interface:
+  display_name: "Software Studio"
+  short_description: "Design a software studio: its tasks and services"
+policy:
+  allow_implicit_invocation: false
