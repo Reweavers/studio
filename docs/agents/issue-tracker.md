@@ -1,30 +1,41 @@
-# Issue tracker: Local Markdown
+# Issue tracker: GitHub Issues
 
-Issues and specs for this repo live as markdown files in `.scratch/`.
+Issues for this repo live in GitHub Issues on `Reweavers/studio`. Use `gh` from the repo root; it targets this repo from the `origin` remote.
 
 ## Conventions
 
-- One feature per directory: `.scratch/<feature-slug>/`
-- The spec is `.scratch/<feature-slug>/spec.md`
-- Implementation issues are one file per ticket at `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`, never a single combined tickets file
-- Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
-- Comments and conversation history append to the bottom of the file under a `## Comments` heading
+- One ticket per issue. The title is the ticket's name; the body holds what to build and its acceptance criteria as a task list.
+- Triage state is a label, exactly one of the roles in `triage-labels.md`.
+- Conversation and recorded results go in issue comments, each a dated line of findings.
+- Refer to another ticket as `#N`.
+
+## Blocking
+
+GitHub's native "blocked by" relation is the source of truth; a `**Blocked by:** #N, #N` line in the body mirrors it for readers. A ticket is unblocked when every issue blocking it is closed.
+
+`gh` has no command for the relation, so use the API. It takes the blocking issue's `id` (not its number):
+
+```sh
+gh api repos/Reweavers/studio/issues/<N>/dependencies/blocked_by --jq '[.[] | {number, state}]'   # list
+id=$(gh api repos/Reweavers/studio/issues/<blocker> --jq .id)
+gh api -X POST repos/Reweavers/studio/issues/<N>/dependencies/blocked_by -F issue_id="$id"       # add
+```
 
 ## When a skill says "publish to the issue tracker"
 
-Create a new file under `.scratch/<feature-slug>/` (creating the directory if needed).
+`gh issue create --title "<name>" --body-file <file> --label <triage label>`, then add each blocking edge.
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the file at the referenced path. The user will normally pass the path or the issue number directly.
+`gh issue view <N> --comments`. The user will normally pass the issue number or URL.
 
 ## Wayfinding operations
 
-Used by `/wayfinder`. The **map** is a file with one **child** file per ticket.
+Used by `/wayfinder`. The **map** is one issue; each **child** ticket is a sub-issue of it.
 
-- **Map**: `.scratch/<effort>/map.md` (the Notes / Decisions-so-far / Fog body).
-- **Child ticket**: `.scratch/<effort>/issues/NN-<slug>.md`, numbered from `01`, with the question in the body. A `Type:` line records the ticket type (`research`/`prototype`/`grilling`/`task`); a `Status:` line records `claimed`/`resolved`.
-- **Blocking**: a `Blocked by: NN, NN` line near the top. A ticket is unblocked when every file it lists is `resolved`.
-- **Frontier**: scan `.scratch/<effort>/issues/` for files that are open, unblocked, and unclaimed; first by number wins.
-- **Claim**: set `Status: claimed` and save before any work.
-- **Resolve**: append the answer under an `## Answer` heading, set `Status: resolved`, then append a context pointer (gist + link) to the map's Decisions-so-far in `map.md`.
+- **Map**: an issue whose body holds the Notes / Decisions-so-far / Fog sections.
+- **Child ticket**: an issue with the question in the body and a `Type:` line (`research`/`prototype`/`grilling`/`task`), added to the map with `gh api -X POST repos/Reweavers/studio/issues/<map>/sub_issues -F sub_issue_id=<child id>`.
+- **Blocking**: the native relation above.
+- **Frontier**: the map's open sub-issues that are unblocked and unassigned; lowest number wins.
+- **Claim**: `gh issue edit <N> --add-assignee @me` before any work.
+- **Resolve**: comment the answer under an `## Answer` heading, close the issue, then append a context pointer (gist + `#N`) to the map's Decisions-so-far by editing the map's body.

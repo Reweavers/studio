@@ -1,6 +1,6 @@
 # Organisation secrets and variables
 
-Every secret and variable the studio keeps at the organisation level, all with visibility "All repositories". Set at wiring step 1 by `.scratch/software-studio/wiring-step-1.sh`. Pass secrets to reusable workflows by name, never `secrets: inherit`.
+Every secret and variable the studio keeps at the organisation level, all with visibility "All repositories". Set at wiring step 1 by `scripts/wiring-step-1.sh`. Pass secrets to reusable workflows by name, never `secrets: inherit`.
 
 ## Secrets
 
